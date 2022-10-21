@@ -92,7 +92,7 @@ container:
 livenessProbe:
   httpGet:
     path: /healthz
-    port: 8073
+    port: 8042
   initialDelaySeconds: 5
   periodSeconds: 5
   timeoutSeconds: 15
@@ -101,7 +101,7 @@ livenessProbe:
 readinessProbe:
   httpGet:
     path: /healthz
-    port: 8073
+    port: 8042
   initialDelaySeconds: 10
   periodSeconds: 25
   timeoutSeconds: 15
@@ -164,7 +164,7 @@ configMaps:
       #- name: http
       #  type: HttpGet
       #  endpoints:
-      #  - http://a510:6001/
+      #  - http://host1:6001/
 - name: global-config-assets
   mountPath: /usr/share/nginx/html/prod/configurable/images
 
@@ -212,8 +212,8 @@ appInitializement:
     - name: APP_SYS_NAME
       valueFrom:
         secretKeyRef:
-          name: envs
-          key: SFLZ_APP_SYSNAME
+          name: envKeys
+          key: APP_SYSNAME
   
 env:
 - name: TZ
