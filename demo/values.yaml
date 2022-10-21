@@ -1,0 +1,167 @@
+# Default values for demo.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+labels:
+  service: "demo"
+  type: "application"
+  group: "helm-charts"
+  env: "demo"
+  language: "java"
+  org: "demo"
+  k8s.kuboard.cn/layer: cloud
+
+replicaCount: 1
+
+deploymentType: Deployment
+
+image:
+  repository: harbor.local/common/demo
+  pullPolicy: IfNotPresent
+
+toolboxImage: harbor.local/library/busybox
+
+imagePullSecrets: 
+- name: "harbor-registry-key"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "demo"
+  account: "demo"
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+podManagementPolicy: OrderedReady
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8042
+  # if container has extra ports, specify extraPorts like [{"port": 80, "name": "http" }]
+  gateway: app-gateway
+  extraPorts:
+    - port: 80
+      name: http
+      path: biz1
+
+container:
+  port: 8042
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 15
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: 80
+  initialDelaySeconds: 10
+  periodSeconds: 25
+  timeoutSeconds: 15
+  failureThreshold: 3
+
+initContainers: []
+
+extraContainers:
+  - name: second
+    image: prom/prometheus:1.31.1
+  - name: first
+    image: busybox
+    holdApplicationUntilContainerStarts: true
+    command:
+      - top
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 1024Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-ext-usage
+            operator: In
+            values:
+              - security
+              - nginx
+
+lifecycle: {}
+
+configMaps:
+  - name: demo1
+    mountPath: /etc/demo
+    data:
+      demo1-1.yaml: |
+        group1:
+          name: foo
+          value: doo
+      demo1-2.yaml: |
+        group2:
+          name: n1
+          value: n2
+  - name: demo2
+    mountPath: /etc/demo2
+    container: second
+    data:
+      demo2-1.yaml: |
+        group3:
+          name: foo
+          value: doo
+
+storage:
+  hostPath: /etc/ssl/private-ca
+
+dataPath: /app/demo/ca
+
+logPath: /app/demo/log
+
+appInitializement:
+  configFiles:
+  - path: /app/demo/etc
+    files:
+    - templateFile: app-template.yaml
+      file: app.yaml
+    debug: true
+  secrets:
+  - secret: database-demo
+    type: database
+    prefix: DB
+  env: []
+  
+env:
+- name: TZ
+  value: Asia/Shanghai

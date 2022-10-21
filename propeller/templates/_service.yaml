@@ -1,0 +1,78 @@
+{{- define "propeller.service.tpl" -}}
+{{- if .Values.service }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "propeller.appName" . }}
+  labels:
+    {{- include "propeller.chartLabels" . | indent 4 }}
+    {{- include "propeller.helmLabels" . | indent 4 }}
+    service: {{ .Values.labels.service }}
+spec:
+  ports:
+    - port: {{ .Values.service.port }}
+      name: {{ .Values.service.portName | default "http" }}
+    {{- if .Values.service.extraPorts }}
+    {{- range $p := .Values.service.extraPorts }}
+    {{- if $p.port }}
+    - port: {{ $p.port }}
+      name: {{ $p.name | default ( printf "port-%s" ( toString $p.port ) ) }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+  {{- if .Values.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
+  {{- end }}
+  selector:
+    {{- include "propeller.chartLabels" . | indent 4 }}
+{{- if .Values.service.nodePort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "propeller.appName" . -}}-expose-{{ .Values.service.nodePort }}
+  labels:
+    {{- include "propeller.chartLabels" . | indent 4 }}
+    {{- include "propeller.helmLabels" . | indent 4 }}
+    service: {{ .Values.labels.service }}
+spec:
+  type: NodePort
+  ports:
+    - port: {{ .Values.service.port }}
+      name: {{ .Values.service.portName | default "tcp" }}
+      nodePort: {{ .Values.service.nodePort }}
+  {{- if .Values.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
+  {{- end }}
+  selector:
+    {{- include "propeller.chartLabels" . | indent 4 }}
+{{- end }}
+{{- if .Values.service.extraPorts }}
+{{- range $p := .Values.service.extraPorts }}
+{{- if and $p.port $p.nodePort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "propeller.appName" . -}}-nodeport-{{ $p.nodePort }}
+  labels:
+    {{- include "propeller.chartLabels" . | indent 4 }}
+    {{- include "propeller.helmLabels" . | indent 4 }}
+    service: {{ $.Values.labels.service }}
+spec:
+  type: NodePort
+  ports:
+    - port: {{ $p.port }}
+      name: {{ $p.name | default ( printf "tcp-%s" ( toString $p.port ) ) }}
+      nodePort: {{ $p.nodePort }}
+  {{- if $p.sessionAffinity }}
+  sessionAffinity: {{ $p.sessionAffinity }}
+  {{- end }}
+  selector:
+    {{- include "propeller.chartLabels" . | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,21 @@
+{{- define "propeller.configmap.tpl" -}}
+{{- if .Values.configMaps }}
+{{- range $c := .Values.configMaps }}
+{{- if $c.data }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "propeller.appName" $ -}}-{{ $c.name }}
+  labels:
+    {{- include "propeller.chartLabels" $ | indent 4 }}
+    {{- include "propeller.helmLabels" $ | indent 4 }}
+data:
+  {{- range $key, $value := $c.data }}
+  {{ $key }}: |
+{{ $value | indent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

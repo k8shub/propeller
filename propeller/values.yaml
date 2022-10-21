@@ -1,0 +1,28 @@
+---
+global:
+  secretKeys:
+    database:
+      - driver
+      - host
+      - port
+      - user
+      - password
+      - db
+      - addr
+    redis:
+      - clusterMode
+      - host
+      - port
+      - password
+      - db
+    mq:
+      - host
+      - port
+      - user
+      - password
+      - vhost
+    restful:
+      - addr
+      - user
+      - password
+  
