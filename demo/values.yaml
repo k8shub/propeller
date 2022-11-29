@@ -59,6 +59,11 @@ service:
     - port: 80
       name: http
       path: biz1
+  # istio virtual service destination route Headers
+  headers:
+    response:
+      set:
+        access-control-allow-origin: "*"
 
 container:
   port: 8042

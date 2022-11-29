@@ -41,6 +41,10 @@ spec:
         host: {{ include "propeller.appName" $ }}
         port:
           number: {{ $p.port }}
+      {{- if $p.headers }}
+      headers:
+        {{- toYaml $p.headers | nindent 8 }}
+      {{- end }}
     {{- if $.Values.service.mirror }}
     mirror:
       {{ toYaml $.Values.service.mirror | nindent 6 }}
@@ -75,6 +79,10 @@ spec:
         host: {{ include "propeller.appName" . }}
         port:
           number: {{ .Values.service.port }}
+      {{- if .Values.service.headers }}
+      headers:
+        {{- toYaml .Values.service.headers | nindent 8 }}
+      {{- end }}
     {{- if .Values.service.mirror }}
     mirror:
       {{ toYaml .Values.service.mirror | nindent 6 }}
@@ -117,6 +125,10 @@ spec:
         host: {{ include "propeller.appName" $ }}
         port:
           number: {{ $.Values.service.port }}
+      {{- if $.Values.service.headers }}
+      headers:
+        {{- toYaml $.Values.service.headers | nindent 8 }}
+      {{- end }}
     {{- if $.Values.service.mirror }}
     mirror:
       {{ toYaml $.Values.service.mirror | nindent 6 }}

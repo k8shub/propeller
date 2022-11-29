@@ -75,6 +75,11 @@ service:
       name: http2
       path: biz2
   gateway: app-gateway
+  # istio virtual service destination route Headers
+  headers:
+    response:
+      set:
+        access-control-allow-origin: "*"
   # optional: mirror to other service
   mirror:
     host: httpbin

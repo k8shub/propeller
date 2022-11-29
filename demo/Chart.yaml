@@ -22,5 +22,5 @@ appVersion: 0.1.1
 
 dependencies:
 - name: propeller
-  version: 1.1.0
+  version: 1.1.1
   repository: file://../propeller
